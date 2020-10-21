@@ -12,5 +12,6 @@ Vagrant.configure(2) do |config|
   config.vm.synced_folder "src/", "/opt/hiro", type: "nfs"
   config.vm.provision "ansible" do |ansible|
     ansible.playbook = "hiro_provision.yml"
+    ansible.config_file = "provision.cfg"
   end
 end

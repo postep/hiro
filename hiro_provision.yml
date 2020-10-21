@@ -6,10 +6,106 @@
     - name: install python
       raw: sudo apt-get -y install python-minimal
 
+  vars:
+    - packages:
+      # Scans system access logs and bans IPs that show malicious signs
+      - fail2ban
+      # For building with eDeliver
+      - git
+      # For compiling assets using webpack
+      - nodejs
+      - npm
+      # For reverse proxy into our application
+      - nginx
+      - postgresql
+      - postgresql-contrib
+      - libpq-dev
+      - python-psycopg2
+      - bash
+      - openssl
+      - libssl-dev
+      - libssl-doc
+      
+
+    - db_name: hiro_db
+    - db_user: hiro
+    - db_password: orih
 
   tasks:
-    - name: install elixir
+    - name: Update APT package cache
       apt:
-        name: elixir
         update_cache: yes
+        cache_valid_time: 3600
       become: yes
+
+    - name: Install required packages
+      apt:
+        state: present
+        pkg: "{{ packages }}"
+      become: yes
+
+
+    - name: Check if Erlang is Installed
+      command: dpkg-query -W esl-erlang
+      register: erlang_check_deb
+      failed_when: erlang_check_deb.rc > 1
+      changed_when: erlang_check_deb.rc == 1
+
+    - name: Download erlang.deb
+      get_url:
+        url: "https://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb"
+        dest: "/home/vagrant/erlang-solutions_1.0_all.deb"
+      when: erlang_check_deb.rc == 1
+
+    - name: Install erlang dpk src
+      apt:
+        deb: "/home/vagrant/erlang-solutions_1.0_all.deb"
+      when: erlang_check_deb.rc == 1
+      become: yes
+
+    - name: Install erlang and elixir
+      apt:
+        update_cache: yes
+        state: present
+        pkg:
+          - esl-erlang
+          - elixir
+      when: erlang_check_deb.rc == 1
+      become: yes
+
+    - name: Install Hex
+      command: mix local.hex --force
+      changed_when: >
+        "Will always run, don't show that it changed" == 1
+
+    - name: Install phoenix
+      command: mix archive.install hex phx_new 1.5.6 --force
+      changed_when: >
+        "Will always run, don't show that it changed" == 1
+
+
+    - name: Ensure the PostgreSQL service is running
+      service: name=postgresql state=started enabled=yes
+      become: yes
+
+    - name: Create a hiro db
+      become: yes
+      become_user: postgres
+      postgresql_db:
+        name={{ db_name }}
+
+    - name: Ensure user has access to the database
+      become: yes
+      become_user: postgres
+      postgresql_user: db={{ db_name }}
+                   name={{ db_user }}
+                   password={{ db_password }}
+                   priv=ALL
+                   state=present
+
+    - name: Ensure user does not have unnecessary privileges
+      become: yes
+      become_user: postgres
+      postgresql_user: name={{ db_user }}
+                   role_attr_flags=NOSUPERUSER,NOCREATEDB
+                   state=present
