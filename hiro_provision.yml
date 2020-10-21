@@ -1,0 +1,15 @@
+---
+- hosts: all
+  user: root
+  gather_facts: no
+  pre_tasks:
+    - name: install python
+      raw: sudo apt-get -y install python-minimal
+
+
+  tasks:
+    - name: install elixir
+      apt:
+        name: elixir
+        update_cache: yes
+      become: yes
