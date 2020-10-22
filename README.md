@@ -94,3 +94,14 @@ To delete record use:
 `curl --request DELETE http://192.168.2.202:4000/api/events/<sensor_id>
 `
 
+
+### Tests
+
+Could be run after logging to Vagrant machine by:
+
+`
+vagrant ssh
+cd /opt/hiro/sensor_db
+mix tests
+`
+
