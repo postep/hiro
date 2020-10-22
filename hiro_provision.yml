@@ -28,7 +28,7 @@
       
 
     - db_name: hiro_db
-    - db_user: hiro
+    - db_user: hiro_usr
     - db_password: orih
 
   tasks:
@@ -88,6 +88,13 @@
       service: name=postgresql state=started enabled=yes
       become: yes
 
+    - name: add vagrant to postgres group
+      become: true
+      user:
+        name: vagrant
+        groups: postgres
+        append: yes
+
     - name: Create a hiro db
       become: yes
       become_user: postgres
@@ -102,10 +109,11 @@
                    password={{ db_password }}
                    priv=ALL
                    state=present
+                   role_attr_flags=CREATEDB
 
-    - name: Ensure user does not have unnecessary privileges
-      become: yes
-      become_user: postgres
-      postgresql_user: name={{ db_user }}
-                   role_attr_flags=NOSUPERUSER,NOCREATEDB
-                   state=present
+    # - name: Ensure user does not have unnecessary privileges
+    #   become: yes
+    #   become_user: postgres
+    #   postgresql_user: name={{ db_user }}
+    #                role_attr_flags=NOSUPERUSER,NOCREATEDB
+    #                state=present
