@@ -7,6 +7,7 @@ defmodule SensorDbWeb.Router do
 
   scope "/api", SensorDbWeb do
     pipe_through :api
+    resources "/events", EventController, except: [:new, :edit]
   end
 
   # Enables LiveDashboard only for development
