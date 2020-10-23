@@ -49,6 +49,14 @@ vagrant ssh
 cd /opt/hiro/sensor_db
 `
 
+first run needs:
+`
+mix deps.get
+mix ecto.create
+mix ecto.migrate
+`
+
+
 app can be started by
 `
 mix phx.server
