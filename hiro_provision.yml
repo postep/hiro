@@ -111,6 +111,14 @@
                    role_attr_flags=CREATEDB
     
 
+    - name: get mix deps
+      command: 
+        cmd: mix deps.get
+        chdir: /opt/hiro/sensor_db
+      changed_when: >
+        "Will always run, don't show that it changed" == 1
+
+
     - name: create app database
       command: 
         cmd: mix ecto.create
