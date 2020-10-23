@@ -84,6 +84,22 @@
         "Will always run, don't show that it changed" == 1
 
 
+    - name: create app database
+      command: 
+        cmd: mix ecto.create
+        chdir: /opt/hiro/sensor_db
+      changed_when: >
+        "Will always run, don't show that it changed" == 1
+
+
+    - name: migrate app database
+      command: 
+        cmd: mix ecto.migrate
+        chdir: /opt/hiro/sensor_db
+      changed_when: >
+        "Will always run, don't show that it changed" == 1
+
+
     - name: Ensure the PostgreSQL service is running
       service: name=postgresql state=started enabled=yes
       become: yes
@@ -110,10 +126,3 @@
                    priv=ALL
                    state=present
                    role_attr_flags=CREATEDB
-
-    # - name: Ensure user does not have unnecessary privileges
-    #   become: yes
-    #   become_user: postgres
-    #   postgresql_user: name={{ db_user }}
-    #                role_attr_flags=NOSUPERUSER,NOCREATEDB
-    #                state=present
