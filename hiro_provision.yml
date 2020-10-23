@@ -83,7 +83,7 @@
       changed_when: >
         "Will always run, don't show that it changed" == 1
 
-
+    - name: Ensure the PostgreSQL service is running
       service: name=postgresql state=started enabled=yes
       become: yes
 
@@ -127,4 +127,3 @@
         "Will always run, don't show that it changed" == 1
 
 
-    - name: Ensure the PostgreSQL service is running
